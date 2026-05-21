@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserMovieTrackerRepository extends JpaRepository<UserMovieTracker, Long> {
+    Long countByUserId(Long id);
 }
