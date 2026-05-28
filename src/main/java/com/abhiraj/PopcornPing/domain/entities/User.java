@@ -38,6 +38,14 @@ public class User {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    private Boolean isEnabled;
+
+    @Column(name = "verification_code")
+    private String verificationCode;
+
+    @Column(name = "verification_expiration")
+    private LocalDateTime verificationCodeExpiresAt;
+
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
