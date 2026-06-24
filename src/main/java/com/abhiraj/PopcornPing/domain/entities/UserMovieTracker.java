@@ -6,6 +6,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity(name = "watch_list")
+@Table(
+        name = "user_movie_tracker",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_user_movie",
+                        columnNames = {"user_id", "movie_id"}
+                )
+        }
+)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

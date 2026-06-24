@@ -20,7 +20,8 @@ public class TmdbMovieDetail {
     private Long id;
     private String title;
     private String overview;
-    @JsonProperty("poster_path")  private String posterPath;
+    @JsonProperty("poster_path")
+    private String posterPath;
     @JsonProperty("release_date")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

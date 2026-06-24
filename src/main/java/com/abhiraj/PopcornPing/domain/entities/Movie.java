@@ -45,4 +45,11 @@ public class Movie {
     @Builder.Default
     private List<UserMovieTracker> lists = new ArrayList<>();
 
+    @PrePersist
+    public void prePersist() {
+        if (lastSyncedAt == null) {
+            lastSyncedAt = LocalDateTime.now();
+        }
+    }
+
 }
