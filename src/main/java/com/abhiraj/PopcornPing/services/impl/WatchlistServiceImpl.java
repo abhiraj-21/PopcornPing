@@ -109,6 +109,12 @@ public class WatchlistServiceImpl implements WatchlistService {
                 new EntityNotFoundException("No relation between User " + user + " and Movie " + tmdbId)
         );
 
+        if (status == WatchStatus.WATCHED && trackedMovie.getCalendarEventId() != null) {
+            calendarService.deleteEvent(user, trackedMovie.getCalendarEventId());
+            trackedMovie.setCalendarEventId(null);
+            trackedMovie.setNotificationStatus(NotificationStatus.NOTIFIED);
+        }
+
         trackedMovie.setWatchStatus(status);
         UserMovieTracker saved = userMovieTrackerRepository.save(trackedMovie);
         return userMovieTrackerMapping.domainToResponse(saved);
@@ -122,8 +128,12 @@ public class WatchlistServiceImpl implements WatchlistService {
         );
 
         UserMovieTracker trackedMovie = userMovieTrackerRepository.findByUserAndMovieTmdbId(user, tmdbId).orElseThrow(() ->
-            new EntityNotFoundException("No relation between User "+user+" and movie with id "+tmdbId)
+                new EntityNotFoundException("No relation between User "+user+" and movie with id "+tmdbId)
         );
+
+        if (trackedMovie.getCalendarEventId() != null) {
+            calendarService.deleteEvent(user, trackedMovie.getCalendarEventId());
+        }
 
         userMovieTrackerRepository.delete(trackedMovie);
         return null;

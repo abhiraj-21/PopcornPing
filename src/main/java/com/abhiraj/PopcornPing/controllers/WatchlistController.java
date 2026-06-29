@@ -1,6 +1,5 @@
 package com.abhiraj.PopcornPing.controllers;
 
-import com.abhiraj.PopcornPing.domain.dtos.response.MovieStatusResponseDto;
 import com.abhiraj.PopcornPing.domain.dtos.response.UserMovieTrackerResponseDto;
 import com.abhiraj.PopcornPing.domain.enums.WatchStatus;
 import com.abhiraj.PopcornPing.services.WatchlistService;
