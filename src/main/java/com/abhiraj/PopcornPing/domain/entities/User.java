@@ -54,6 +54,19 @@ public class User {
     @Builder.Default
     private List<UserMovieTracker> movies = new ArrayList<>();
 
+    @Column(name = "google_access_token", length = 2048)
+    private String googleAccessToken;
+
+    @Column(name = "google_refresh_token", length = 512)
+    private String googleRefreshToken;
+
+    @Column(name = "google_token_expiry")
+    private LocalDateTime googleTokenExpiry;
+
+    @Column(name = "is_calendar_connected")
+    @Builder.Default
+    private Boolean isCalendarConnected = false;
+
     @PrePersist
     private void onCreate(){
         this.createdAt = LocalDateTime.now();

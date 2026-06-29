@@ -34,8 +34,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/calendar/callback").authenticated()
+                        .requestMatchers("/api/calendar/auth").authenticated()
                         .anyRequest().authenticated())
-                .oauth2Login(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

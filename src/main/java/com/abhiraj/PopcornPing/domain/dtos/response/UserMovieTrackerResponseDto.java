@@ -15,5 +15,7 @@ public class UserMovieTrackerResponseDto {
     private String userName;
     private String movieName;
     private String watchStatus;
+    private Boolean calendarEventCreated;
+    private String calendarAuthUrl;
 
 }

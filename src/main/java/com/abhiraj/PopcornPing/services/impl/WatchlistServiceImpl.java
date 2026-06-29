@@ -55,7 +55,15 @@ public class WatchlistServiceImpl implements WatchlistService {
             throw new IllegalStateException("Movie already in watchlist");
         }
 
-        String releaseEvent = calendarService.createReleaseEvent(user, movie);
+        boolean calendarConnected = user.getIsCalendarConnected();
+        String releaseEvent = null;
+        String authUrl = null;
+
+        if (calendarConnected) {
+            releaseEvent = calendarService.createReleaseEvent(user, movie);
+        } else {
+            authUrl = calendarService.generateAuthUrl();
+        }
 
         UserMovieTracker userMovieTracker = UserMovieTracker.builder()
                 .movie(movie)
@@ -67,6 +75,9 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         UserMovieTracker saved = userMovieTrackerRepository.save(userMovieTracker);
 
-        return userMovieTrackerMapping.domainToResponse(saved);
+        UserMovieTrackerResponseDto response = userMovieTrackerMapping.domainToResponse(saved);
+        response.setCalendarEventCreated(calendarConnected && releaseEvent != null);
+        response.setCalendarAuthUrl(authUrl);
+        return response;
     }
 }
