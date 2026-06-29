@@ -15,12 +15,16 @@ import com.abhiraj.PopcornPing.services.CalendarService;
 import com.abhiraj.PopcornPing.services.TmdbClientService;
 import com.abhiraj.PopcornPing.services.WatchlistService;
 import com.abhiraj.PopcornPing.tmdbResponses.TmdbMovieDetail;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -79,5 +83,49 @@ public class WatchlistServiceImpl implements WatchlistService {
         response.setCalendarEventCreated(calendarConnected && releaseEvent != null);
         response.setCalendarAuthUrl(authUrl);
         return response;
+    }
+
+    @Override
+    public List<UserMovieTrackerResponseDto> retrieveMovieWithStatus(String email, WatchStatus watchStatus) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new UsernameNotFoundException("No user with email id: " + email)
+        );
+        List<UserMovieTracker> moviesWithStatus = userMovieTrackerRepository.findByUserAndWatchStatus(user, watchStatus);
+
+        List<UserMovieTrackerResponseDto> response = moviesWithStatus.stream()
+                .map(userMovieTrackerMapping::domainToResponse)
+                .toList();
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public UserMovieTrackerResponseDto updateMovieStatus(String email, WatchStatus status, Long tmdbId) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new UsernameNotFoundException("No user with email id: " + email)
+        );
+
+        UserMovieTracker trackedMovie = userMovieTrackerRepository.findByUserAndMovieTmdbId(user, tmdbId).orElseThrow(() ->
+                new EntityNotFoundException("No relation between User " + user + " and Movie " + tmdbId)
+        );
+
+        trackedMovie.setWatchStatus(status);
+        UserMovieTracker saved = userMovieTrackerRepository.save(trackedMovie);
+        return userMovieTrackerMapping.domainToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public Void deleteMovie(String email, Long tmdbId) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new UsernameNotFoundException("No user with email id: " + email)
+        );
+
+        UserMovieTracker trackedMovie = userMovieTrackerRepository.findByUserAndMovieTmdbId(user, tmdbId).orElseThrow(() ->
+            new EntityNotFoundException("No relation between User "+user+" and movie with id "+tmdbId)
+        );
+
+        userMovieTrackerRepository.delete(trackedMovie);
+        return null;
     }
 }
