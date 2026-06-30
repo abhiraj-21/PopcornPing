@@ -46,4 +46,11 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/notify")
+    public ResponseEntity<String> triggerNotify(){
+        movieScheduler.notifyUpcomingReleases();
+        return ResponseEntity.ok("Notified Users");
+    }
+
 }

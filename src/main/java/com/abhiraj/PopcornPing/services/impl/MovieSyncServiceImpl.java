@@ -49,6 +49,43 @@ public class MovieSyncServiceImpl implements MovieSyncService {
         }
     }
 
+    @Override
+    @Transactional
+    public void processNotifyUsers(Movie movie) {
+        List<UserMovieTracker> trackedMovies = userMovieTrackerRepository
+                .findByMovieTmdbIdAndWatchStatusAndNotificationStatus(movie.getTmdbId(), WatchStatus.WANT_TO_WATCH, NotificationStatus.PENDING);
+
+        for(UserMovieTracker trackedMovie : trackedMovies){
+            try{
+                notifyUser(trackedMovie, movie);
+            }catch(Exception e){
+                log.error("Failed to notify user {} for movie {}: {}",
+                        trackedMovie.getUser().getEmail(), movie.getTitle(), e.getMessage());
+            }
+        }
+    }
+
+    private void notifyUser(UserMovieTracker trackedMovie, Movie movie) throws MessagingException {
+        String subject = "Movie '"+movie.getTitle()+"' releases tomorrow";
+        String htmlMessage = "<!DOCTYPE html>"
+                + "<html><body style='font-family:Arial,sans-serif;background:#f4f4f4;padding:20px'>"
+                + "<div style='max-width:500px;margin:auto;background:#fff;padding:30px;border-radius:10px;text-align:center'>"
+                + "<h1 style='color:#ff6b6b'> PopcornPing</h1>"
+                + "<p>Your watchlist reminder is here! </p>"
+                + "<p>One of the movies in your watchlist is releasing <b>tomorrow</b>.</p>"
+                + "<h2 style='color:#ff6b6b;letter-spacing:1px'>" + movie.getTitle() + "</h2>"
+                + "<p>Release Date:</p>"
+                + "<h3 style='color:#333;'>" + movie.getReleaseDate() + "</h3>"
+                + "<p style='margin-top:10px'>Get your popcorn ready and don't miss the premiere! 🍿</p>"
+                + "<p style='color:gray;font-size:12px;margin-top:20px'>You're receiving this reminder because this movie is in your watchlist.</p>"
+                + "</div>"
+                + "</body></html>";
+
+        emailService.sendEmail(trackedMovie.getUser().getEmail(), subject, htmlMessage);
+        trackedMovie.setNotificationStatus(NotificationStatus.NOTIFIED);
+        userMovieTrackerRepository.save(trackedMovie);
+    }
+
     private void notifyTracker(UserMovieTracker trackedMovie, Movie movie) throws MessagingException {
         if (trackedMovie.getCalendarEventId() != null && !trackedMovie.getCalendarEventId().isEmpty()) {
             calendarService.updateEvent(trackedMovie.getUser(), trackedMovie.getCalendarEventId(), movie);
@@ -59,7 +96,7 @@ public class MovieSyncServiceImpl implements MovieSyncService {
                 + "<html><body style='font-family:Arial,sans-serif;background:#f4f4f4;padding:20px'>"
                 + "<div style='max-width:500px;margin:auto;background:#fff;padding:30px;border-radius:10px;text-align:center'>"
                 + "<h1 style='color:#ff6b6b'>PopcornPing</h1>"
-                + "<p>Good news / update from your watchlist 🎬</p>"
+                + "<p>Good news / update from your watchlist </p>"
                 + "<p>The release date for one of your saved movies has been changed.</p>"
                 + "<h2 style='color:#ff6b6b;letter-spacing:1px'>" + movie.getTitle() + "</h2>"
                 + "<p>New release date:</p>"

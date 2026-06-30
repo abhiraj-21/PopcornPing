@@ -3,6 +3,7 @@ package com.abhiraj.PopcornPing.repositories;
 import com.abhiraj.PopcornPing.domain.entities.Movie;
 import com.abhiraj.PopcornPing.domain.entities.User;
 import com.abhiraj.PopcornPing.domain.entities.UserMovieTracker;
+import com.abhiraj.PopcornPing.domain.enums.NotificationStatus;
 import com.abhiraj.PopcornPing.domain.enums.WatchStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,6 @@ public interface UserMovieTrackerRepository extends JpaRepository<UserMovieTrack
     Optional<UserMovieTracker> findByUserAndMovieTmdbId(User user, Long movieId);
 
     List<UserMovieTracker> findByMovieTmdbIdAndWatchStatus(Long movieId, WatchStatus watchStatus);
+
+    List<UserMovieTracker> findByMovieTmdbIdAndWatchStatusAndNotificationStatus(Long tmdbId, WatchStatus watchStatus, NotificationStatus notificationStatus);
 }
