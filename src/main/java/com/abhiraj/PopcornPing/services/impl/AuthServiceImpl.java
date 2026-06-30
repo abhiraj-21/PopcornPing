@@ -124,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
                 + "</body></html>";
 
         try{
-            emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
+            emailService.sendEmail(user.getEmail(), subject, htmlMessage);
         }catch (MessagingException e) {
             throw new RuntimeException("Failed to send verification email");
         }

@@ -19,4 +19,6 @@ public interface UserMovieTrackerRepository extends JpaRepository<UserMovieTrack
     List<UserMovieTracker> findByUserAndWatchStatus(User user, WatchStatus watchStatus);
 
     Optional<UserMovieTracker> findByUserAndMovieTmdbId(User user, Long movieId);
+
+    List<UserMovieTracker> findByMovieTmdbIdAndWatchStatus(Long movieId, WatchStatus watchStatus);
 }
